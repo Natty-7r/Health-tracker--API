@@ -1,19 +1,5 @@
 import config from '../../config/config';
 
-export const calculateAge = (ageValue: string) => {
-  if (ageValue.includes('/')) {
-    const [day, month, year] = ageValue.split('/').map(Number);
-    const today = new Date();
-    const birthDate = new Date(year, month - 1, day);
-
-    let age = today.getFullYear() - birthDate.getFullYear();
-    if (month <= config.monthThreshold) {
-      age--;
-    }
-    return age;
-  } else return parseInt(ageValue);
-};
-
 export function formatDateFromIsoString(dateString: string): string {
   const currentDate = new Date();
   const inputDate = new Date(dateString);
