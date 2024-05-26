@@ -15,6 +15,7 @@ export const authGuard = (req: RequestWithUser, res: Response, next: NextFunctio
     '/auth/doctor/login',
     '/auth/user/login',
     '/auth/create-doctor',
+    '/user/add-data',
   ];
 
   if (escapedRoutes.includes(req.path)) return next();
