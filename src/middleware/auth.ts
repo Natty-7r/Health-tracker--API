@@ -1,108 +1,47 @@
-import axios from 'axios';
+import { Request, Response, NextFunction } from 'express';
+import jwt from 'jsonwebtoken';
+import { JwtAuthPayload, RequestWithUser } from '../types/api';
 import config from '../config/config';
-import MainMenuFormmater from '../modules/mainmenu/mainmenu-formmater';
-import { findSender } from '../utils/helpers/chat';
-import RegistrationService from '../modules/registration/restgration.service';
-import { isRegistering } from '../modules/registration/registration.scene';
-import { ResponseWithData } from '../types/api';
-const mainMenuFormmater = new MainMenuFormmater();
 
-const baseUrl = `https://api.telegram.org/bot${config.bot_token}`;
+// Middleware to extract and verify token
 
-//
-export async function checkUserInChannel(tg_id: number): Promise<ResponseWithData> {
-  try {
-    const response = await axios.get(`${baseUrl}/getChatMember`, {
-      params: {
-        chat_id: config.channel_id,
-        user_id: tg_id,
-      },
-    });
-
-    const isUserJoined =
-      response.data.result.status === 'member' ||
-      response.data.result.status === 'administrator' ||
-      response.data.result.status === 'creator';
-
-    return {
-      status: 'success',
-      data: isUserJoined,
-      message: 'success',
-    };
-  } catch (error: any) {
-    console.error(error.message);
-    return {
-      status: 'fail',
-      data: false,
-      message: error.message,
-    };
-  }
-}
-
-export function checkUserInChannelandPromtJoin() {
-  return async (ctx: any, next: any) => {
-    const sender = findSender(ctx);
-    try {
-      const { status, data: isUserJoined, message } = await checkUserInChannel(sender.id);
-      if (status == 'fail') return ctx.replyWithHTML(...mainMenuFormmater.formatFailedJoinCheck(message || ''));
-
-      if (!isUserJoined) {
-        return ctx.reply(...mainMenuFormmater.formatJoinMessage(sender.first_name));
-      } else if (isUserJoined) {
-        return next();
-      }
-    } catch (error: any) {
-      console.error(error.message);
-      return ctx.replyWithHTML(...mainMenuFormmater.formatFailedJoinCheck(error.message || ''));
-    }
-  };
-}
-
-export const registerationSkips = (ctx: any) => {
-  const skipQueries = [
-    'searchedPosts',
-    'browse',
-    'post_detail',
-    '/start',
-    '/restart',
-    '/search',
-    '🔍 Search Questions',
+export const authGuard = (req: RequestWithUser, res: Response, next: NextFunction) => {
+  const authHeader = req.headers.authorization;
+  const escapedRoutes = [
+    '/auth/forgot',
+    '/auth/login',
+    '/auth/reset',
+    '/auth/verify',
+    '/auth/doctor/login',
+    '/auth/user/login',
+    '/auth/create-doctor',
   ];
-  const message = ctx.message?.text;
-  const query = ctx.callbackQuery?.data;
-  console.log(isRegistering(), 'is registering  ');
-  if (isRegistering()) return true;
 
-  if (query) {
-    return skipQueries.some((skipQuery) => {
-      return query.toString().startsWith(skipQuery);
-    });
-  }
-  if (message) {
-    return skipQueries.some((skipQuery) => {
-      return message.startsWith(skipQuery);
-    });
+  if (escapedRoutes.includes(req.path)) return next();
+
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({ message: 'Unauthorized' });
   }
 
-  return false;
+  const token = authHeader.split(' ')[1];
+
+  try {
+    const decoded = jwt.verify(token, config.jwt.secret as string) as JwtAuthPayload;
+    req.user = decoded; // Attach user info to request object
+    next();
+  } catch (err) {
+    return res.status(401).json({ message: 'Unauthorized' });
+  }
 };
 
-export function checkRegistration() {
-  return async (ctx: any, next: any) => {
-    const isVia_bot = ctx.message?.via_bot;
-    const sender = findSender(ctx);
-    const isRegisteredSkiped = registerationSkips(ctx);
-    console.log(isRegisteredSkiped, 'skipped');
-    if (isVia_bot) return true;
-    if (isRegisteredSkiped) return next();
-    const isUserRegistered = await new RegistrationService().isUserRegisteredWithTGId(sender.id);
-    if (!isUserRegistered) {
-      ctx.reply('Please register to use the service');
-      return ctx.scene.enter('register');
+// Middleware to check user role
+export const roleGuard = (requiredRole: string) => {
+  return (req: RequestWithUser, res: Response, next: NextFunction) => {
+    const user = req.user as JwtAuthPayload;
+    if (user.role !== requiredRole) {
+      return res.status(403).json({ message: 'Forbidden' });
     }
 
-    return next();
+    next();
   };
-}
-
-// Define the parameters as an object
+};

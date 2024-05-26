@@ -25,8 +25,6 @@ async function sendEmail(to: string, subject: string, html: string) {
     }
   });
 
-  console.log({ to, subject, html });
-
   const info = await transporter.sendMail({
     from: `"Do-not-reply" ${config.email}`,
     to,

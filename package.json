@@ -12,7 +12,7 @@
     "ts-node": "^10.9.2",
     "typescript": "^5.4.3"
   },
-  "name": "telegram-bot",
+  "name": "health-tracker",
   "description": "",
   "version": "1.0.0",
   "main": "dist/index.js",

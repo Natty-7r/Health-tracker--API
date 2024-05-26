@@ -1,26 +1,24 @@
 import Express from 'express';
 import config from './config/config';
 
-import APIRouter from './api/routes';
+import APIRouter from './api/doctor/routes';
 
 const app = Express();
-const ignite = () => {
-  app.use(Express.json());
-  app.use(Express.urlencoded({ extended: true }));
 
-  // ROUTES
-  app.use('/admin', APIRouter);
+app.use(Express.json());
+app.use(Express.urlencoded({ extended: true }));
 
-  const server = app.listen(config.port, () => {
-    console.log(`bot is running on port ${config.port}`);
-  });
+// ROUTES
+app.use('/', APIRouter);
 
-  // Graceful shutdown
-  process.once('SIGINT', () => {
-    server.close();
-  });
-  process.once('SIGTERM', () => {
-    server.close();
-  });
-};
-ignite();
+const server = app.listen(config.port, () => {
+  console.log(`app is running on port ${config.port}`);
+});
+
+// Graceful shutdown
+process.once('SIGINT', () => {
+  server.close();
+});
+process.once('SIGTERM', () => {
+  server.close();
+});
