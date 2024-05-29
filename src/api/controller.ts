@@ -8,6 +8,7 @@ import { formatAccountCreationEmailMsg, formatResetOptEmailMsg } from '../utils/
 
 export async function CreateDoctor(req: Request, res: Response) {
   try {
+    console.log(req.body);
     const { first_name, last_name, email, password } = req.body;
     const { status, message, data } = await ApiService.CreateDoctor({
       first_name,
