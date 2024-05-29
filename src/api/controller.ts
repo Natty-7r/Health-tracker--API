@@ -1,8 +1,8 @@
 import { Request, Response } from 'express';
-import config from '../../config/config';
+import config from '../config/config';
 import ApiService from './service';
-import sendEmail from '../../utils/helpers/sendEmail';
-import { formatAccountCreationEmailMsg, formatResetOptEmailMsg } from '../../utils/helpers/string';
+import sendEmail from '../utils/helpers/sendEmail';
+import { formatAccountCreationEmailMsg, formatResetOptEmailMsg } from '../utils/helpers/string';
 
 // express function to handle the request
 

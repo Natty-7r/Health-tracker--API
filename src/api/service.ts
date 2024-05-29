@@ -1,6 +1,6 @@
-import config from '../../config/config';
-import prisma from '../../loaders/db-connecion';
-import { BareResponse, ResponseWithData } from '../../types/api';
+import config from '../config/config';
+import prisma from '../loaders/db-connecion';
+import { BareResponse, ResponseWithData } from '../types/api';
 import {
   CreateDoctorDto,
   CreateUserDataDto,
@@ -9,12 +9,12 @@ import {
   ResetPasswordDto,
   SignInDto,
   VerifyResetOtpDto,
-} from '../../types/dto/auth.dto';
+} from '../types/dto/auth.dto';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import generateOTP from '../../utils/generatePassword';
-import sendEmail from '../../utils/helpers/sendEmail';
-import { formatAccountCreationEmailMsg } from '../../utils/helpers/string';
+import generateOTP from '../utils/generatePassword';
+import sendEmail from '../utils/helpers/sendEmail';
+import { formatAccountCreationEmailMsg } from '../utils/helpers/string';
 
 class ApiService {
   static async CreateDoctor(createDoctorDto: CreateDoctorDto): Promise<ResponseWithData> {

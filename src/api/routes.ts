@@ -12,7 +12,7 @@ import {
   verifyAccount,
   verifyOtp,
 } from './controller';
-import { authGuard, roleGuard } from '../../middleware/auth';
+import { authGuard, roleGuard } from '../middleware/auth';
 const router = express.Router();
 
 router.use(authGuard);
