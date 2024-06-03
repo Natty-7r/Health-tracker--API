@@ -15,14 +15,14 @@ import {
 import { authGuard, roleGuard } from '../middleware/auth';
 const router = express.Router();
 
-// router.use(authGuard);
+router.use(authGuard);
 
 // post routes
-router.post('/doctor/create-user', authGuard, roleGuard('DOCTOR'), CreateUser); // Create a user
+router.post('/doctor/create-user', roleGuard('DOCTOR'), CreateUser); // Create a user
 router.post('/user/add-data', CreateUserData); // Create user data
-router.get('/user/all', GetUserData); // Get user data by user ID
 
 // Doctor routes
+router.get('/doctor/user-data/:controller_id', GetUserData); // Get users associated with a doctor by doctor ID
 router.get('/doctor/users/:doctor_id', roleGuard('DOCTOR'), GetDoctorUsers); // Get users associated with a doctor by doctor ID
 
 // admin auth routes

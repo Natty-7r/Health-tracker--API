@@ -279,8 +279,8 @@ export async function CreateUserData(req: Request, res: Response) {
 
 export async function GetUserData(req: Request, res: Response) {
   try {
-    const { user_id } = req.params;
-    const { status, message, data } = await ApiService.GetUserData(user_id);
+    const { controller_id } = req.params;
+    const { status, message, data } = await ApiService.GetUserData(controller_id);
 
     if (status == 'fail') {
       return res.status(404).json({

@@ -369,6 +369,7 @@ class ApiService {
   static async CreateUser(createUserDto: CreateUserDto): Promise<ResponseWithData> {
     const { first_name, last_name, controller_id, doctor_id } = createUserDto;
 
+    console.log(createUserDto);
     if (!first_name || !last_name || !controller_id) {
       return {
         data: null,
@@ -416,7 +417,7 @@ class ApiService {
   static async CreateUserData(createUserDataDto: CreateUserDataDto): Promise<ResponseWithData> {
     const { body_temperature, heart_rate, accelerometer_x, accelerometer_y, accelerometer_z, controller_id } =
       createUserDataDto;
-
+    console.log(controller_id);
     if (
       !body_temperature ||
       !heart_rate ||
@@ -471,6 +472,51 @@ class ApiService {
     }
   }
 
+  static async findUserOrDoctorWithId(id: string): Promise<ResponseWithData> {
+    if (!id) {
+      return {
+        data: null,
+        status: 'fail',
+        message: 'Doctor ID is required',
+      };
+    }
+    let user = undefined;
+
+    try {
+      user = await prisma.doctor.findUnique({
+        where: {
+          id: id,
+        },
+      });
+      if (!user)
+        user = await prisma.user.findUnique({
+          where: {
+            id: id,
+          },
+        });
+
+      if (!user) {
+        return {
+          data: null,
+          status: 'fail',
+          message: 'Doctor not found',
+        };
+      }
+
+      console.log(user);
+      return {
+        status: 'success',
+        message: 'Doctor users retrieved successfully',
+        data: user,
+      };
+    } catch (error) {
+      return {
+        data: null,
+        status: 'fail',
+        message: (error as Error).message,
+      };
+    }
+  }
   static async GetDoctorUsers(doctor_id: string): Promise<ResponseWithData> {
     if (!doctor_id) {
       return {
@@ -512,8 +558,8 @@ class ApiService {
     }
   }
 
-  static async GetUserData(user_id: string): Promise<ResponseWithData> {
-    if (!user_id) {
+  static async GetUserData(controller_id: string): Promise<ResponseWithData> {
+    if (!controller_id) {
       return {
         data: null,
         status: 'fail',
@@ -524,7 +570,7 @@ class ApiService {
     try {
       const user = await prisma.user.findUnique({
         where: {
-          id: user_id,
+          controller_id: controller_id,
         },
         include: {
           user_data: {

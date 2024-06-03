@@ -2,10 +2,11 @@ import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { JwtAuthPayload, RequestWithUser } from '../types/api';
 import config from '../config/config';
+import ApiService from '../api/service';
 
 // Middleware to extract and verify token
 
-export const authGuard = (req: RequestWithUser, res: Response, next: NextFunction) => {
+export const authGuard = async (req: RequestWithUser, res: Response, next: NextFunction) => {
   const authHeader = req.headers.authorization;
   const escapedRoutes = [
     '/auth/forgot',
@@ -28,9 +29,17 @@ export const authGuard = (req: RequestWithUser, res: Response, next: NextFunctio
 
   try {
     const decoded = jwt.verify(token, config.jwt.secret as string) as JwtAuthPayload;
-    req.user = decoded; // Attach user info to request object
+
+    console.log(decoded);
+    const { status, data } = await ApiService.findUserOrDoctorWithId(decoded.id);
+
+    console.log(status, data);
+    if (status == 'fail') return res.status(401).json({ message: 'Unauthorized' });
+
+    req.user = { ...data, role: decoded.role }; // Attach user info to request object
     next();
-  } catch (err) {
+  } catch (err: any) {
+    console.log(err.message);
     return res.status(401).json({ message: 'Unauthorized' });
   }
 };
