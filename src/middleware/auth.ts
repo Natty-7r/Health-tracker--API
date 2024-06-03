@@ -13,6 +13,7 @@ export const authGuard = async (req: RequestWithUser, res: Response, next: NextF
     '/auth/login',
     '/auth/reset',
     '/auth/verify',
+    'verify-account',
     '/auth/doctor/login',
     '/auth/user/login',
     '/auth/create-doctor',
