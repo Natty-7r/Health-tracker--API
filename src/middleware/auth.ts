@@ -7,13 +7,14 @@ import ApiService from '../api/service';
 // Middleware to extract and verify token
 
 export const authGuard = async (req: RequestWithUser, res: Response, next: NextFunction) => {
+  console.log(req.path);
   const authHeader = req.headers.authorization;
   const escapedRoutes = [
     '/auth/forgot',
     '/auth/login',
     '/auth/reset',
     '/auth/verify',
-    'verify-account',
+    '/auth/verify-account',
     '/auth/doctor/login',
     '/auth/user/login',
     '/auth/create-doctor',
